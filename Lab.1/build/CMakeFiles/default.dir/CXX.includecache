@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/victo/Downloads/lab1_code/default/lab1.cpp
+sha256.h
+/home/victo/Downloads/lab1_code/default/sha256.h
+iostream
+-
+cstdint
+-
+chrono
+-
+
+/home/victo/Downloads/lab1_code/default/sha256.cpp
+sha256.h
+/home/victo/Downloads/lab1_code/default/sha256.h
+endian.h
+-
+
+/home/victo/Downloads/lab1_code/default/sha256.h
+string
+-
+stdint.h
+-
+

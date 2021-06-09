@@ -1,0 +1,1 @@
+/bin/x86_64-linux-gnu-g++-10  -g  -rdynamic CMakeFiles/project.dir/lab1.cpp.o CMakeFiles/project.dir/sha256.cpp.o  -o project 

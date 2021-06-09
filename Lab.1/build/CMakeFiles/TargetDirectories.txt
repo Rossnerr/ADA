@@ -1,0 +1,5 @@
+/home/victo/Downloads/lab1_code/build/CMakeFiles/edit_cache.dir
+/home/victo/Downloads/lab1_code/build/CMakeFiles/package_source.dir
+/home/victo/Downloads/lab1_code/build/CMakeFiles/rebuild_cache.dir
+/home/victo/Downloads/lab1_code/build/CMakeFiles/package.dir
+/home/victo/Downloads/lab1_code/build/CMakeFiles/default.dir
