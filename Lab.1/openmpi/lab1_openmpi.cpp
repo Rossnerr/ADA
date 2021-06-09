@@ -5,13 +5,12 @@
 #include <chrono>
 #include <functional>
 
-const int SOLUTION_TAG = 12;
 
 std::string solve_crypto_puzzle(std::string str, uint puzzle_difficulty, int start, int step, std::function<bool()> should_stop)
 {
     std::string nonce_needle(puzzle_difficulty, '0');
-
     SHA256 sha256;
+
     for (uint64_t i = start; i < UINT64_MAX; i += step)
     {
         if (should_stop()) return "";
@@ -23,6 +22,7 @@ std::string solve_crypto_puzzle(std::string str, uint puzzle_difficulty, int sta
             return solution_candidate;
         }
     }
+
     throw "No result found";
 }
 
@@ -47,19 +47,22 @@ void check_comandline_passed_arguments(int argc, char *argv[])
 
 int main (int argc, char *argv[]) 
 {
+    const int root = 0;
+    const int SOLUTION_BUFFER_SIZE = 512;
+    const int SOLUTION_TAG = 12;
+
     check_comandline_passed_arguments(argc, argv);
 
     int difficulty = atoi(argv[1]);
     SHA256 sha256;
     const std::string message("Hello World");
 
-    std::cout << "Message:" << std::endl << message << std::endl;
-    // std::cout << "Hash:" << std::endl << sha256(message) << std::endl;
-    std::cout << std::endl << std::endl;
-    std::cout << "Looking for nonce to solve crypto-puzzle with " << difficulty << " difficulty" << "..." << std::endl;
+    std::cout << "Message: " << message << std::endl;
+    std::cout << "Hash: " << sha256(message) << std::endl;
+    std::cout << std::endl;
+    std::cout << "Looking for nonce to solve crypto-puzzle with difficulty " << difficulty << "..." << std::endl;
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    const int root = 0;
 
     // Initialize the MPI environment
     MPI_Init(NULL, NULL);
@@ -80,8 +83,6 @@ int main (int argc, char *argv[])
     // Print off a hello world message
     std::cout << "Hello world from processor " << processor_name << ", rank " << world_rank << " out of " << world_size << " processors" << std::endl;
 
-    const int SOLUTION_BUFFER_SIZE = 512;
-
     if (world_rank != root) {
         auto found = true;
         MPI_Request receive_cancel_request;
@@ -93,7 +94,6 @@ int main (int argc, char *argv[])
                 MPI_Test(&receive_cancel_request, &flag, &status);
                 return flag;
             });
-
         if (solution.length() != 0) {
             MPI_Send((void*)solution.data(), solution.length(), MPI_CHAR, root, SOLUTION_TAG, MPI_COMM_WORLD);
         }
@@ -119,9 +119,9 @@ int main (int argc, char *argv[])
         auto duration_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 
         std::cout 
-            << "Process " << solver_rank << " found the solution\n"
-            << "Solution is " << solution << " with hash " << sha256(solution) << "\n"     
-            << "In " << duration_milliseconds.count() << " milliseconds\n"
+            << "Process " << solver_rank << " found the solution" << std::endl
+            << "Solution is " << solution << " with hash " << sha256(solution) << std::endl   
+            << "In " << duration_milliseconds.count() << " milliseconds" << std::endl
             << std::fflush;
 
         if (world_size > 1) {
