@@ -71,23 +71,17 @@ App = {
 
     // Render Account
     $('#account').html(App.account)
-    $('#all').on('click', () => {
-        $('input:checkbox').click();        
-    })
+
     $('#todo')
-    .css('background-color', App.colors[0])
     .on('click', App.markCheckedAs)
     
     $('#doing')
-    .css('background-color', App.colors[1])
     .on('click', App.markCheckedAs)
     
     $('#testing')
-    .css('background-color', App.colors[2])
     .on('click', App.markCheckedAs)
     
     $('#done')
-    .css('background-color', App.colors[3])
     .on('click', App.markCheckedAs)
     
     $('#taskList')
@@ -99,14 +93,13 @@ App = {
     // Update loading state
     App.setLoading(false)
   },
-  arr: ['todo', 'doing', 'testing', 'done'],
+  arr: ['To Do', 'Doing', 'Testing', 'Done'],
   colors: ['#a13fb5', '#515ba6', '#99b33e', '#3fb553'],
   markCheckedAs: async (e) => {
       var newState = e.target.innerText;
-      var ethState = 0;
-      ethState = Math.max(ethState, App.arr.indexOf(newState));
+      var ethState = App.arr.indexOf(newState);
       var checkedIds = $.map($( "input:checked" ), e => e.name);
-      checkedIds.forEach(async taskId => {          
+      checkedIds.forEach(async taskId => {      
         await App.todoList.changeStatus(taskId, ethState)
       });
     window.location.reload()
@@ -114,39 +107,52 @@ App = {
   renderTasks: async () => {
     // Load the total task count from the blockchain
     const taskCount = await App.todoList.taskCount()
-    const $taskTemplate = $('.taskTemplate')
-
+    
     // Render out each task with a new task template
     for (var i = 1; i <= taskCount; i++) {
       // Fetch the task data from the blockchain
       const task = await App.todoList.tasks(i)
-      var status = App.arr[task[3]];
-      
+
       const taskId = task[0].toNumber()
-      const taskContent = task[1]// + '<b>' + status + '</b>'
+      const taskContent = task[1]
       const taskCompleted = task[2]
+      const status = App.arr[task[3]];
 
-      // Create the html for the task
-      const $newTaskTemplate = $taskTemplate.clone()
-      $newTaskTemplate.find('.content')
-                      .css('background-color', App.colors[task[3]])
-                      .css('padding', '3px')
-                      
-                      .html(taskContent)
-      $newTaskTemplate.find('input')
-                      .prop('name', taskId)
-                      .prop('checked', taskCompleted);
-                      //.on('click', App.toggleCompleted)
+      var div = document.createElement("div"); 
+      div.className = 'todoTaskTemplate'
+      var label = document.createElement('label')
+      var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.name = taskId
+      input.checked = taskCompleted
+      var span = document.createElement('span')
+      span.className = 'content'
 
-      // Put the task in the correct list
-      if (taskCompleted) {
-        $('#completedTaskList').append($newTaskTemplate)
-      } else {
-        $('#taskList').append($newTaskTemplate)
+      span.append(taskContent)
+      label.append(input)
+      label.appendChild(span)
+      div.append(label)
+      
+      var list;
+      
+      switch(status){
+        case 'To Do':
+          list = document.getElementById('todoTaskList')
+          break;
+        case 'Doing':
+          list = document.getElementById('doingTaskList')          
+          break;
+        case 'Testing':
+          list = document.getElementById('testingTaskList')          
+          break;
+        case 'Done':
+          list = document.getElementById('doneTaskList')
+          break;
+        default:
+          break;
       }
 
-      // Show the task
-      $newTaskTemplate.show()
+      list.appendChild(div)
     }
   },
 
@@ -156,13 +162,6 @@ App = {
     await App.todoList.createTask(content)
     window.location.reload()
   },
-
-  // toggleCompleted: async (e) => {
-    // App.setLoading(true)
-    // const taskId = e.target.name
-    // await App.todoList.toggleCompleted(taskId)
-    // window.location.reload()
-  // },
 
   setLoading: (boolean) => {
     App.loading = boolean
